@@ -21,7 +21,7 @@ class WeatherForecast:
             min_per_day: tensor of size (num_days,)
             max_per_day: tensor of size (num_days,)
         """
-        raise NotImplementedError
+        return torch.min(self.data, dim=1, keepdim=False).values, torch.max(self.data, dim=1, keepdim=False).values
 
     def find_the_largest_drop(self) -> torch.Tensor:
         """
@@ -31,7 +31,7 @@ class WeatherForecast:
         Returns:
             tensor of a single value, the difference in temperature
         """
-        raise NotImplementedError
+        return torch.min(torch.diff(torch.mean(self.data, dim=1)))
 
     def find_the_most_extreme_day(self) -> torch.Tensor:
         """
@@ -39,8 +39,11 @@ class WeatherForecast:
 
         Returns:
             tensor with size (num_days,)
-        """
-        raise NotImplementedError
+        """  
+        diff = torch.abs(self.data - torch.mean(self.data, dim=1, keepdim=True)) # (num_days, 10)
+        max_diff_idx = torch.argmax(diff, dim=1) # largest difference index for each day, (num_days,)
+        day = torch.arange(self.data.shape[0]) # 0, 1 , 2, ..., num_days-1
+        return self.data[day, max_diff_idx]
 
     def max_last_k_days(self, k: int) -> torch.Tensor:
         """
@@ -49,7 +52,7 @@ class WeatherForecast:
         Returns:
             tensor of size (k,)
         """
-        raise NotImplementedError
+        return torch.amax(self.data[-k:], dim=1)
 
     def predict_temperature(self, k: int) -> torch.Tensor:
         """
@@ -62,7 +65,7 @@ class WeatherForecast:
         Returns:
             tensor of a single value, the predicted temperature
         """
-        raise NotImplementedError
+        return torch.mean(self.data[-k:])
 
     def what_day_is_this_from(self, t: torch.FloatTensor) -> torch.LongTensor:
         """
@@ -87,4 +90,4 @@ class WeatherForecast:
         Returns:
             tensor of a single value, the index of the closest data element
         """
-        raise NotImplementedError
+        return torch.min(torch.sum(torch.abs(t - self.data), dim=1), dim=0).indices
