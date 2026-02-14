@@ -25,7 +25,7 @@ class QLoRALinear(Linear4Bit):
         self.lora_a.requires_grad_(True)
         self.lora_b.requires_grad_(True)
         
-        self.alpha_div_rank = 32.0 / lora_dim
+        self.alpha_div_rank = 16.0 / lora_dim
         
         torch.nn.init.kaiming_uniform_(self.lora_a.weight)
         torch.nn.init.zeros_(self.lora_b.weight)
