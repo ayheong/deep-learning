@@ -85,6 +85,7 @@ class Linear4Bit(torch.nn.Module):
             # Hint: You can use torch.nn.functional.linear
             weight = block_dequantize_4bit(self.weight_q4, self.weight_norm)
             weight = weight.view(self._shape)         
+            weight = weight.to(x.device)
             x = x.to(weight.dtype)   
             out = torch.nn.functional.linear(x, weight, self.bias)
             return out
