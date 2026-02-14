@@ -57,17 +57,17 @@ class QLoRABigNet(torch.nn.Module):
         super().__init__()
         self.model = torch.nn.Sequential(
             self.Block(BIGNET_DIM, lora_dim, group_size),
-            LayerNorm(BIGNET_DIM, dtype=torch.float32),
+            LayerNorm(BIGNET_DIM),
             self.Block(BIGNET_DIM, lora_dim, group_size),
-            LayerNorm(BIGNET_DIM, dtype=torch.float32),
+            LayerNorm(BIGNET_DIM),
             self.Block(BIGNET_DIM, lora_dim, group_size),
-            LayerNorm(BIGNET_DIM, dtype=torch.float32),
+            LayerNorm(BIGNET_DIM),
             self.Block(BIGNET_DIM, lora_dim, group_size),
-            LayerNorm(BIGNET_DIM, dtype=torch.float32),
+            LayerNorm(BIGNET_DIM),
             self.Block(BIGNET_DIM, lora_dim, group_size),
-            LayerNorm(BIGNET_DIM, dtype=torch.float32),
+            LayerNorm(BIGNET_DIM),
             self.Block(BIGNET_DIM, lora_dim, group_size),
-            LayerNorm(BIGNET_DIM, dtype=torch.float32),
+            LayerNorm(BIGNET_DIM),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
