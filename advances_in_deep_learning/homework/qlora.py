@@ -12,7 +12,7 @@ class QLoRALinear(Linear4Bit):
         in_features: int,
         out_features: int,
         lora_dim: int,
-        group_size: int = 16,
+        group_size: int = 64,
         bias: bool = True,
     ) -> None:
         super().__init__(in_features, out_features, bias, group_size)
@@ -53,7 +53,7 @@ class QLoRABigNet(torch.nn.Module):
         def forward(self, x: torch.Tensor) -> torch.Tensor:
             return self.model(x) + x
 
-    def __init__(self, lora_dim: int = 32, group_size: int = 16):
+    def __init__(self, lora_dim: int = 32, group_size: int = 64):
         super().__init__()
         self.model = torch.nn.Sequential(
             self.Block(BIGNET_DIM, lora_dim, group_size),
