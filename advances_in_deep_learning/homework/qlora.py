@@ -43,7 +43,7 @@ class QLoRABigNet(torch.nn.Module):
     class Block(torch.nn.Module):
         def __init__(self, channels, lora_dim, group_size):
             super().__init__()
-            self.model = torch.nn.Squential(
+            self.model = torch.nn.Sequential(
                 QLoRALinear(channels, channels, lora_dim, group_size),
                 torch.nn.ReLU(),
                 QLoRALinear(channels, channels, lora_dim, group_size),
