@@ -28,27 +28,57 @@ class LoRALinear(HalfLinear):
 
         # TODO: Implement LoRA, initialize the layers, and make sure they are trainable
         # Keep the LoRA layers in float32
-        raise NotImplementedError()
-
+        self.requires_grad_(False)
+        
+        self.lora_a = torch.nn.Linear(in_features, lora_dim, bias=False)
+        self.lora_b = torch.nn.Linear(lora_dim, out_features, bias=False)
+        self.lora_a.requires_grad_(True)
+        self.lora_b.requires_grad_(True)
+        
+        self.alpha_div_rank = 1.0 / lora_dim
+        
+        torch.nn.init.kaiming_uniform_(self.lora_a.weight)
+        torch.nn.init.zeros_(self.lora_b.weight)
+        
+        
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # TODO: Forward. Make sure to cast inputs to self.linear_dtype and the output back to x.dtype
-        raise NotImplementedError()
+        base = super().forward(x)
+        lora = self.lora_b(self.lora_a(x)) * self.alpha_div_rank
+        out = base + lora
+        return out.to(x.dtype)
 
 
 class LoraBigNet(torch.nn.Module):
     class Block(torch.nn.Module):
         def __init__(self, channels: int, lora_dim: int):
             super().__init__()
-            # TODO: Implement me (feel free to copy and reuse code from bignet.py)
-            raise NotImplementedError()
+            self.model = torch.nn.Sequential(
+                LoRALinear(channels, channels, lora_dim),
+                torch.nn.ReLU(),
+                LoRALinear(channels, channels, lora_dim),
+                torch.nn.ReLU(),
+                LoRALinear(channels, channels, lora_dim),
+            )
 
         def forward(self, x: torch.Tensor):
             return self.model(x) + x
 
     def __init__(self, lora_dim: int = 32):
         super().__init__()
-        # TODO: Implement me (feel free to copy and reuse code from bignet.py)
-        raise NotImplementedError()
+        self.model = torch.nn.Sequential(
+            self.Block(BIGNET_DIM, lora_dim),
+            LayerNorm(BIGNET_DIM),
+            self.Block(BIGNET_DIM, lora_dim),
+            LayerNorm(BIGNET_DIM),
+            self.Block(BIGNET_DIM, lora_dim),
+            LayerNorm(BIGNET_DIM),
+            self.Block(BIGNET_DIM, lora_dim),
+            LayerNorm(BIGNET_DIM),
+            self.Block(BIGNET_DIM, lora_dim),
+            LayerNorm(BIGNET_DIM),
+            self.Block(BIGNET_DIM, lora_dim),
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
